@@ -80,7 +80,7 @@ CXXWARN =
 
 FPU_OPTS = -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -fcheck-new
 
-OPT = -g -Os -mlittle-endian 
+OPT = -g -Ofast -mlittle-endian 
 OPT += $(FPU_OPTS)
 #OPT += -flto
 
