@@ -3,11 +3,10 @@
  *
  */
 
-//#include "unit_revfx.h"
-#include "unit_delfx.h"
+#include "unit_revfx.h"
 #include "utils/buffer_ops.h"
 #include "revmodel.hpp"
-#include "buffers.h"
+#include "tuning.h"
 
 #define k_user_revfx_param_time 0
 #define k_user_revfx_param_depth 1
@@ -164,6 +163,7 @@ __unit_callback void unit_render(const float * in, float * out, uint32_t frames)
 __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
 {
     const float valf = param_10bit_to_f32(value);
+    float drywet;
     switch (id) {
     case k_user_revfx_param_time:
         model.setroomsize(valf);
@@ -172,8 +172,9 @@ __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
         model.setdamp(1.0 - valf);
         break;
     case k_user_revfx_param_shift_depth:
-        model.setwet((valf / 2 + 0.5f));
-        model.setdry((0.5f - valf / 2) * 0.2);
+        drywet = (value + 1000) * 0.0005f;
+        model.setwet(drywet / scalewet);
+        model.setdry((1.0f - drywet) / scaledry);
         break;
     default:
         break;
