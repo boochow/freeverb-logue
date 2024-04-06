@@ -20,12 +20,12 @@ public:
 			float	getdamp();
 			void	setfeedback(float val);
 			float	getfeedback();
+	float	*buffer;
 private:
 	float	feedback;
 	float	filterstore;
 	float	damp1;
 	float	damp2;
-	float	*buffer;
 	int		bufsize;
 	int		bufidx;
 };

@@ -15,6 +15,7 @@ class revmodel
 {
 public:
 					revmodel();
+			void	setup();
 			void	mute();
 			void	processmix(float *inputL, float *inputR, float *outputL, float *outputR, long numsamples, int skip);
 			void	processreplace(float *inputL, float *inputR, float *outputL, float *outputR, long numsamples, int skip);
@@ -30,6 +31,13 @@ public:
 			float	getwidth();
 			void	setmode(float value);
 			float	getmode();
+	// Comb filters
+	comb	combL[numcombs];
+	comb	combR[numcombs];
+
+	// Allpass filters
+	allpass	allpassL[numallpasses];
+	allpass	allpassR[numallpasses];
 private:
 			void	update();
 private:
@@ -45,13 +53,6 @@ private:
 	// to remove the need for dynamic allocation
 	// with its subsequent error-checking messiness
 
-	// Comb filters
-	comb	combL[numcombs];
-	comb	combR[numcombs];
-
-	// Allpass filters
-	allpass	allpassL[numallpasses];
-	allpass	allpassR[numallpasses];
 };
 
 #endif//_revmodel_

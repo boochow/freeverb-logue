@@ -9,6 +9,10 @@
 
 revmodel::revmodel()
 {
+}
+
+void revmodel::setup()
+{
 	// Tie the components to their buffers
 	combL[0].setbuffer(bufcombL1,combtuningL1);
 	combR[0].setbuffer(bufcombR1,combtuningR1);
@@ -52,14 +56,13 @@ revmodel::revmodel()
 	setmode(initialmode);
 
 	// Buffer will be full of rubbish - so we MUST mute them
-	mute();
+//	mute();
 }
 
 void revmodel::mute()
 {
 	if (getmode() >= freezemode)
 		return;
-
 	for (int i=0;i<numcombs;i++)
 	{
 		combL[i].mute();
