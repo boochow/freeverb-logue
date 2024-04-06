@@ -15,12 +15,14 @@
 
 static unit_runtime_desc_t s_desc;
 static int32_t p_[11];
-static int32_t err = 0;
-static int32_t err2 = 0;
-static int32_t err3 = 0;
-static int32_t err4 = 0;
 
 static revmodel model; // buffers must be re-initialized
+
+// buffers on SDRAM
+static float *bufCL = nullptr;
+static float *bufCR = nullptr;
+static float *bufAL = nullptr;
+static float *bufAR = nullptr;
 
 inline float *sdram_alloc_f32(size_t bufsize) {
     float *m = (float *)s_desc.hooks.sdram_alloc(bufsize * sizeof(float) + 32);
@@ -28,6 +30,10 @@ inline float *sdram_alloc_f32(size_t bufsize) {
         buf_clr_f32(m, bufsize);
     }
     return m;
+}
+
+inline void sdram_free(void *buf) {
+    s_desc.hooks.sdram_free((uint8_t *)buf);
 }
 
 __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
@@ -58,129 +64,89 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
 
     // allocate multiple buffers as a single buffer
     // because calling sdram_alloc for more than 16 times will fail
-    float *buf;
+    float *bufcombL[numcombs];
+    float *bufcombR[numcombs];
+    float *bufallpassL[numallpasses];
+    float *bufallpassR[numallpasses];
     size_t pos;
-    buf = sdram_alloc_f32(combtuningL1 + combtuningL2 +
-                          combtuningL3 + combtuningL4 +
-                          combtuningL5 + combtuningL6 +
-                          combtuningL7 + combtuningL8);
-    if (buf) {
+    bufCL = sdram_alloc_f32(combtuningL1 + combtuningL2 +
+                            combtuningL3 + combtuningL4 +
+                            combtuningL5 + combtuningL6 +
+                            combtuningL7 + combtuningL8);
+    if (bufCL) {
         pos = 0;
-        bufcombL1 = &buf[pos];
+        bufcombL[0] = &bufCL[pos];
         pos += combtuningL1;
-        bufcombL2 = &buf[pos];
+        bufcombL[1] = &bufCL[pos];
         pos += combtuningL2;
-        bufcombL3 = &buf[pos];
+        bufcombL[2] = &bufCL[pos];
         pos += combtuningL3;
-        bufcombL4 = &buf[pos];
+        bufcombL[3] = &bufCL[pos];
         pos += combtuningL4;
-        bufcombL5 = &buf[pos];
+        bufcombL[4] = &bufCL[pos];
         pos += combtuningL5;
-        bufcombL6 = &buf[pos];
+        bufcombL[5] = &bufCL[pos];
         pos += combtuningL6;
-        bufcombL7 = &buf[pos];
+        bufcombL[6] = &bufCL[pos];
         pos += combtuningL7;
-        bufcombL8 = &buf[pos];
-        err++;
+        bufcombL[7] = &bufCL[pos];
+    } else {
+        return k_unit_err_memory;
     }
-    buf = sdram_alloc_f32(combtuningR1 + combtuningR2 +
-                          combtuningR3 + combtuningR4 +
-                          combtuningR5 + combtuningR6 +
-                          combtuningR7 + combtuningR8);
-    if (buf) {
+    bufCR = sdram_alloc_f32(combtuningR1 + combtuningR2 +
+                            combtuningR3 + combtuningR4 +
+                            combtuningR5 + combtuningR6 +
+                            combtuningR7 + combtuningR8);
+    if (bufCR) {
         pos = 0;
-        bufcombR1 = &buf[pos];
+        bufcombR[0] = &bufCR[pos];
         pos += combtuningR1;
-        bufcombR2 = &buf[pos];
+        bufcombR[1] = &bufCR[pos];
         pos += combtuningR2;
-        bufcombR3 = &buf[pos];
+        bufcombR[2] = &bufCR[pos];
         pos += combtuningR3;
-        bufcombR4 = &buf[pos];
+        bufcombR[3] = &bufCR[pos];
         pos += combtuningR4;
-        bufcombR5 = &buf[pos];
+        bufcombR[4] = &bufCR[pos];
         pos += combtuningR5;
-        bufcombR6 = &buf[pos];
+        bufcombR[5] = &bufCR[pos];
         pos += combtuningR6;
-        bufcombR7 = &buf[pos];
+        bufcombR[6] = &bufCR[pos];
         pos += combtuningR7;
-        bufcombR8 = &buf[pos];
-        err++;
+        bufcombR[7] = &bufCR[pos];
+    } else {
+        return k_unit_err_memory;
     }
-    err2 = (uint32_t) bufcombR8;
-    buf = sdram_alloc_f32(allpasstuningL1 + allpasstuningL2 +
-                          allpasstuningL3 + allpasstuningL4);
-    if (buf) {
+    bufAL = sdram_alloc_f32(allpasstuningL1 + allpasstuningL2 +
+                            allpasstuningL3 + allpasstuningL4);
+    if (bufAL) {
         pos = 0;
-        bufallpassL1 = &buf[pos];
+        bufallpassL[0] = &bufAL[pos];
         pos += allpasstuningL1;
-        bufallpassL2 = &buf[pos];
+        bufallpassL[1] = &bufAL[pos];
         pos += allpasstuningL2;
-        bufallpassL3 = &buf[pos];
+        bufallpassL[2] = &bufAL[pos];
         pos += allpasstuningL3;
-        bufallpassL4 = &buf[pos];
-        err++;
+        bufallpassL[3] = &bufAL[pos];
+    } else {
+        return k_unit_err_memory;
     }
-    buf = sdram_alloc_f32(allpasstuningR1 + allpasstuningR2 +
-                          allpasstuningR3 + allpasstuningR4);
-    if (buf) {
+    bufAR = sdram_alloc_f32(allpasstuningR1 + allpasstuningR2 +
+                            allpasstuningR3 + allpasstuningR4);
+    if (bufAR) {
         pos = 0;
-        bufallpassR1 = &buf[pos];
+        bufallpassR[0] = &bufAR[pos];
         pos += allpasstuningR1;
-        bufallpassR2 = &buf[pos];
+        bufallpassR[1] = &bufAR[pos];
         pos += allpasstuningR2;
-        bufallpassR3 = &buf[pos];
+        bufallpassR[2] = &bufAR[pos];
         pos += allpasstuningR3;
-        bufallpassR4 = &buf[pos];
-        err++;
+        bufallpassR[3] = &bufAR[pos];
+    } else {
+        return k_unit_err_memory;
     }
-//    model.setup();
-	// Tie the components to their buffers
-	model.combL[0].setbuffer(bufcombL1,combtuningL1);
-	model.combR[0].setbuffer(bufcombR1,combtuningR1);
-	model.combL[1].setbuffer(bufcombL2,combtuningL2);
-	model.combR[1].setbuffer(bufcombR2,combtuningR2);
-	model.combL[2].setbuffer(bufcombL3,combtuningL3);
-	model.combR[2].setbuffer(bufcombR3,combtuningR3);
-	model.combL[3].setbuffer(bufcombL4,combtuningL4);
-	model.combR[3].setbuffer(bufcombR4,combtuningR4);
-	model.combL[4].setbuffer(bufcombL5,combtuningL5);
-	model.combR[4].setbuffer(bufcombR5,combtuningR5);
-	model.combL[5].setbuffer(bufcombL6,combtuningL6);
-	model.combR[5].setbuffer(bufcombR6,combtuningR6);
-	model.combL[6].setbuffer(bufcombL7,combtuningL7);
-	model.combR[6].setbuffer(bufcombR7,combtuningR7);
-	model.combL[7].setbuffer(bufcombL8,combtuningL8);
-	model.combR[7].setbuffer(bufcombR8,combtuningR8);
-	model.allpassL[0].setbuffer(bufallpassL1,allpasstuningL1);
-	model.allpassR[0].setbuffer(bufallpassR1,allpasstuningR1);
-	model.allpassL[1].setbuffer(bufallpassL2,allpasstuningL2);
-	model.allpassR[1].setbuffer(bufallpassR2,allpasstuningR2);
-	model.allpassL[2].setbuffer(bufallpassL3,allpasstuningL3);
-	model.allpassR[2].setbuffer(bufallpassR3,allpasstuningR3);
-	model.allpassL[3].setbuffer(bufallpassL4,allpasstuningL4);
-	model.allpassR[3].setbuffer(bufallpassR4,allpasstuningR4);
+    model.setbuffers(bufcombL, bufcombR, bufallpassL, bufallpassR);
 
-	// Set default values
-	model.allpassL[0].setfeedback(0.5f);
-	model.allpassR[0].setfeedback(0.5f);
-	model.allpassL[1].setfeedback(0.5f);
-	model.allpassR[1].setfeedback(0.5f);
-	model.allpassL[2].setfeedback(0.5f);
-	model.allpassR[2].setfeedback(0.5f);
-	model.allpassL[3].setfeedback(0.5f);
-	model.allpassR[3].setfeedback(0.5f);
-	model.setwet(initialwet);
-	model.setroomsize(initialroom);
-	model.setdry(initialdry);
-	model.setdamp(initialdamp);
-	model.setwidth(initialwidth);
-	model.setmode(initialmode);
-
-	// Buffer will be full of rubbish - so we MUST mute them
-	model.mute();
-
-    err4 = (uint32_t) model.combR[7].buffer;
-    err++;
     return k_unit_err_none;
 }
 
@@ -206,8 +172,8 @@ __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
         model.setdamp(1.0 - valf);
         break;
     case k_user_revfx_param_shift_depth:
-        model.setwet(valf);
-        model.setdry(1.0 - valf);
+        model.setwet((valf / 2 + 0.5f));
+        model.setdry((0.5f - valf / 2) * 0.2);
         break;
     default:
         break;
@@ -216,6 +182,10 @@ __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
 }
 
 __unit_callback void unit_teardown() {
+    sdram_free(bufCL);
+    sdram_free(bufCR);
+    sdram_free(bufAL);
+    sdram_free(bufAR);
 }
 
 __unit_callback void unit_reset() {
@@ -231,43 +201,7 @@ __unit_callback int32_t unit_get_param_value(uint8_t id) {
     return p_[id];
 }
 
-static char errnum[8];
-static char hexstr[17] = "0123456789ABCDEF";
 __unit_callback const char * unit_get_param_str_value(uint8_t id, int32_t value) {
-    if (id == 3) {
-        switch(value) {
-        case 0:
-            errnum[0] = 0x30 + (err / 100) % 10;
-            errnum[1] = 0x30 + (err / 10) % 10;
-            errnum[2] = 0x30 + err % 10;
-            errnum[3] = 0;
-            return errnum;
-            break;
-        case 1:
-            errnum[0] = hexstr[(err2 & 0xf000) >> 12];
-            errnum[1] = hexstr[(err2 & 0xf00) >> 8];
-            errnum[2] = hexstr[(err2 & 0xf0) >> 4];
-            errnum[3] = hexstr[err2 & 0xf];
-            return errnum;
-            break;
-        case 2:
-            errnum[0] = hexstr[(err3 & 0xf000) >> 12];
-            errnum[1] = hexstr[(err3 & 0xf00) >> 8];
-            errnum[2] = hexstr[(err3 & 0xf0) >> 4];
-            errnum[3] = hexstr[err3 & 0xf];
-            return errnum;
-            break;
-        case 3:
-            errnum[0] = hexstr[(err4 & 0xf000) >> 12];
-            errnum[1] = hexstr[(err4 & 0xf00) >> 8];
-            errnum[2] = hexstr[(err4 & 0xf0) >> 4];
-            errnum[3] = hexstr[err4 & 0xf];
-            return errnum;
-            break;
-        default:
-            return nullptr;
-        }
-    }
     return nullptr;
 }
 

@@ -15,6 +15,7 @@ class revmodel
 {
 public:
 					revmodel();
+			void	setbuffers(float **bufcombL, float **bufcombR, float **bufallpassL, float **bufallpassR);
 			void	setup();
 			void	mute();
 			void	processmix(float *inputL, float *inputR, float *outputL, float *outputR, long numsamples, int skip);
