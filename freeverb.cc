@@ -114,6 +114,7 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
         pos += combtuningR7;
         bufcombR[7] = &bufCR[pos];
     } else {
+        sdram_free(bufCL);
         return k_unit_err_memory;
     }
     bufAL = sdram_alloc_f32(allpasstuningL1 + allpasstuningL2 +
@@ -128,6 +129,8 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
         pos += allpasstuningL3;
         bufallpassL[3] = &bufAL[pos];
     } else {
+        sdram_free(bufCL);
+        sdram_free(bufCR);
         return k_unit_err_memory;
     }
     bufAR = sdram_alloc_f32(allpasstuningR1 + allpasstuningR2 +
@@ -142,6 +145,9 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
         pos += allpasstuningR3;
         bufallpassR[3] = &bufAR[pos];
     } else {
+        sdram_free(bufCL);
+        sdram_free(bufCR);
+        sdram_free(bufAL);
         return k_unit_err_memory;
     }
     model.setbuffers(bufcombL, bufcombR, bufallpassL, bufallpassR);
