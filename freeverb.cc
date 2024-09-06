@@ -3,14 +3,19 @@
  *
  */
 
-#include "unit_revfx.h"
+#include "unit_genericfx.h"
 #include "utils/buffer_ops.h"
 #include "revmodel.hpp"
 #include "tuning.h"
 
-#define k_user_revfx_param_time 0
-#define k_user_revfx_param_depth 1
-#define k_user_revfx_param_shift_depth 2
+enum {
+    k_user_revfx_param_roomsize,
+    k_user_revfx_param_damp,
+    k_user_revfx_param_width,
+    k_user_revfx_param_freeze,
+    k_user_revfx_param_wet,
+    k_user_revfx_param_dry,
+};
 
 static unit_runtime_desc_t s_desc;
 static int32_t p_[11];
@@ -40,7 +45,7 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
       return k_unit_err_undef;
     
     // Note: make sure the unit is being loaded to the correct platform/module target
-    if (desc->target != unit_header.target)
+    if (desc->target != unit_header.common.target)
       return k_unit_err_target;
     
     // Note: check API compatibility with the one this unit was built against
@@ -168,19 +173,32 @@ __unit_callback void unit_render(const float * in, float * out, uint32_t frames)
 
 __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
 {
-    const float valf = param_10bit_to_f32(value);
+    float valf;
     float drywet;
     switch (id) {
-    case k_user_revfx_param_time:
+    case k_user_revfx_param_roomsize:
+        valf = value * 0.005f;
         model.setroomsize(valf);
         break;
-    case k_user_revfx_param_depth:
+    case k_user_revfx_param_damp:
+        valf = value * 0.005f;
         model.setdamp(1.0 - valf);
         break;
-    case k_user_revfx_param_shift_depth:
-        drywet = (value + 1000) * 0.0005f;
-        model.setwet(drywet / scalewet);
-        model.setdry((1.0f - drywet) / scaledry);
+    case k_user_revfx_param_width:
+        valf = value * 0.005f;
+        model.setwidth(valf);
+        break;
+    case k_user_revfx_param_freeze:
+        valf = value * 1.f;
+        model.setmode(valf);
+        break;
+    case k_user_revfx_param_wet:
+        valf = value * 0.005f;
+        model.setwet(valf);
+        break;
+    case k_user_revfx_param_dry:
+        valf = value * 0.005f;
+        model.setdry(valf);
         break;
     default:
         break;
@@ -199,9 +217,11 @@ __unit_callback void unit_reset() {
 }
 
 __unit_callback void unit_resume() {
+    model.mute();
 }
 
 __unit_callback void unit_suspend() {
+    model.mute();
 }
 
 __unit_callback int32_t unit_get_param_value(uint8_t id) {
@@ -216,4 +236,7 @@ __unit_callback void unit_set_tempo(uint32_t tempo) {
 }
 
 __unit_callback void unit_tempo_4ppqn_tick(uint32_t counter) {
+}
+
+__unit_callback void unit_touch_event(uint8_t id, uint8_t phase, uint32_t x, uint32_t y) {
 }

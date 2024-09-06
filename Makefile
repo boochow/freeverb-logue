@@ -95,7 +95,7 @@ TOPT := -mthumb -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -DTHUMB_PRESENT
 # Set compilation targets and directories
 #
 
-PRODUCT := $(PROJECT).nts1mkiiunit
+PRODUCT := $(PROJECT).nts3unit
 
 BUILDDIR := $(PROJECT_ROOT)/build
 OBJDIR := $(BUILDDIR)/obj

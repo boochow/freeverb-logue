@@ -3,8 +3,7 @@
 #
 
 PROJECT := freeverb
-//PROJECT_TYPE := revfx
-PROJECT_TYPE := delfx
+PROJECT_TYPE := genericfx
 
 ##############################################################################
 # Sources

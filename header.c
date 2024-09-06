@@ -34,46 +34,46 @@
 /*
  *  File: header.c
  *
- *  NTS-1 mkII reverb effect unit header definition
+ *  NTS-3 kaoss pad kit generic effect unit header definition
  *
  */
 
-#include "unit_revfx.h"   // Note: Include base definitions for revfx units
+#include "unit_genericfx.h"   // Note: Include base definitions for genericfx units
 
 // ---- Unit header definition  --------------------------------------------------------------------
 
-const __unit_header unit_header_t unit_header = {
-    .header_size = sizeof(unit_header_t),
-    .target = UNIT_TARGET_PLATFORM | k_unit_module_revfx,
+const __unit_header genericfx_unit_header_t unit_header = {
+  .common = {
+    .header_size = sizeof(genericfx_unit_header_t),
+    .target = UNIT_TARGET_PLATFORM | k_unit_module_genericfx,
     .api = UNIT_API_VERSION,
     .dev_id = 0x42636877U,  // "Bchw"
-    .unit_id = 0x05040000,  // Product number(05),Unit type(04=RevFX),reserved
+    .unit_id = 0x05060000,  // Product number(05),Unit type(06=GenFX),reserved
     .version = 0x00010000U,
     .name = "Freeverb",
-    .num_params = 3,
-    
+    .num_params = 6,
+
     .params = {
         // Format: min, max, center, default, type, frac. bits, frac. mode, <reserved>, name
-
-        // See common/runtime.h for type enum and unit_param_t structure
-
-        // Fixed/direct UI parameters
-        // A knob
-        {0, 1023, 0, 256, k_unit_param_type_none, 1, 0, 0, {"TIME"}},
-
-        // B knob
-        {0, 1023, 0, 256, k_unit_param_type_none, 1, 0, 0, {"DAMP"}},
-
-        // REVEB switch + B knob
-        {-1000, 1000, 0, 0, k_unit_param_type_drywet, 1, 1, 0, {"MIX"}},
-
-        // 8 Edit menu parameters
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
+        {0, 200, 0, 40, k_unit_param_type_none, 1, 0, 0, {"Time"}},
+        {0, 200, 0, 100, k_unit_param_type_none, 1, 0, 0, {"Damp"}},
+        {0, 200, 0, 60, k_unit_param_type_none, 1, 0, 0, {"Width"}},
+        {0, 1, 0, 0, k_unit_param_type_onoff, 0, 0, 0, {"Freeze"}},
+        {0, 200, 0, 60, k_unit_param_type_none, 1, 0, 0, {"Wet"}},
+        {0, 200, 0, 0, k_unit_param_type_none, 1, 0, 0, {"Dry"}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}}},
+  },
+  .default_mappings = {
+      // Format: assign, curve, curve polarity, min, max, default value
+      {k_genericfx_param_assign_depth, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 200, 40},
+      {k_genericfx_param_assign_none, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 200, 100},
+      {k_genericfx_param_assign_x, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 200, 60},
+      {k_genericfx_param_assign_none, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 1, 0},
+      {k_genericfx_param_assign_y, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 200, 60},
+      {k_genericfx_param_assign_none, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 200, 0},
+
+      {k_genericfx_param_assign_none, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 0, 0},
+      {k_genericfx_param_assign_none, k_genericfx_curve_linear, k_genericfx_curve_unipolar, 0, 0, 0}
+  }
 };
