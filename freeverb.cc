@@ -12,14 +12,12 @@ enum {
     k_user_revfx_param_damp,
     k_user_revfx_param_width,
     k_user_revfx_param_freeze,
-    k_user_revfx_param_wet,
-    k_user_revfx_param_dry,
 };
 
 static unit_runtime_desc_t s_desc;
 static int32_t p_[11];
 
-static revmodel model; // buffers must be re-initialized
+static revmodel model;
 
 __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
     if (!desc)
@@ -44,6 +42,9 @@ __unit_callback int8_t unit_init(const unit_runtime_desc_t * desc) {
     // Cache the runtime descriptor for later use
     s_desc = *desc;
 
+    model.setwet(1.f);
+    model.setdry(0.f);
+
     return k_unit_err_none;
 }
 
@@ -54,14 +55,14 @@ __unit_callback void unit_render(const float * in, float * out, uint32_t frames)
     float * __restrict my_l = (float *) out;
     float * __restrict my_r = (float *) (out + 1);
 
-    model.processmix(in_l, in_r, my_l, my_r, frames, 2);
+    model.processreplace(in_l, in_r, my_l, my_r, frames, 2);
 }
 
 
 __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
 {
     float valf;
-    float drywet;
+//    float drywet;
     switch (id) {
     case k_user_revfx_param_roomsize:
         valf = value * 0.005f;
@@ -78,14 +79,6 @@ __unit_callback void unit_set_param_value(uint8_t id, int32_t value)
     case k_user_revfx_param_freeze:
         valf = value * 1.f;
         model.setmode(valf);
-        break;
-    case k_user_revfx_param_wet:
-        valf = value * 0.005f;
-        model.setwet(valf);
-        break;
-    case k_user_revfx_param_dry:
-        valf = value * 0.005f;
-        model.setdry(valf);
         break;
     default:
         break;
