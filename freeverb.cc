@@ -6,13 +6,6 @@
 #include "unit.h"
 #include "revmodel.hpp"
 #include "tuning.h"
-/*
-#define k_user_revfx_param_time 0
-#define k_user_revfx_param_depth 1
-#define k_user_revfx_param_shift_depth 2
-#define k_user_revfx_param_width 3
-#define k_user_revfx_param_freeze 4
-*/
 
 enum {
     k_user_revfx_param_roomsize,
