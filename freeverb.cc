@@ -167,7 +167,7 @@ __unit_callback void unit_render(const float * in, float * out, uint32_t frames)
     float * __restrict my_l = (float *) out;
     float * __restrict my_r = (float *) (out + 1);
 
-    model.processmix(in_l, in_r, my_l, my_r, frames, 2);
+    model.processreplace(in_l, in_r, my_l, my_r, frames, 2);
 }
 
 
