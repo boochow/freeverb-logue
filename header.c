@@ -50,7 +50,7 @@ const __unit_header unit_header_t unit_header = {
     .unit_id = 0x05040000,  // Product number(05),Unit type(04=RevFX),reserved
     .version = 0x00010000U,
     .name = "Freeverb",
-    .num_params = 3,
+    .num_params = 6,
     
     .params = {
         // Format: min, max, center, default, type, frac. bits, frac. mode, <reserved>, name
@@ -59,18 +59,18 @@ const __unit_header unit_header_t unit_header = {
 
         // Fixed/direct UI parameters
         // A knob
-        {0, 1023, 0, 256, k_unit_param_type_none, 1, 0, 0, {"TIME"}},
+        {0, 200, 0, 40, k_unit_param_type_none, 1, 0, 0, {"Time"}},
 
         // B knob
-        {0, 1023, 0, 256, k_unit_param_type_none, 1, 0, 0, {"DAMP"}},
+        {0, 200, 0, 60, k_unit_param_type_none, 1, 0, 0, {"Wet"}},
 
         // REVEB switch + B knob
-        {-1000, 1000, 0, 0, k_unit_param_type_drywet, 1, 1, 0, {"MIX"}},
+        {0, 200, 0, 60, k_unit_param_type_none, 1, 0, 0, {"Width"}},
 
         // 8 Edit menu parameters
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
-        {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
+        {0, 200, 0, 100, k_unit_param_type_none, 1, 0, 0, {"Damp"}},
+        {0, 1, 0, 0, k_unit_param_type_onoff, 0, 0, 0, {"Freeze"}},
+        {0, 200, 0, 100, k_unit_param_type_none, 1, 0, 0, {"Dry"}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
         {0, 0, 0, 0, k_unit_param_type_none, 0, 0, 0, {""}},
