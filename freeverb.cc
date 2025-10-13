@@ -3,8 +3,21 @@
  *
  */
 
+#include "unit.h"
+
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <climits>
+#include <iostream>
+
+#include "utils/buffer_ops.h" // for buf_clr_f32()
+#include "utils/int_math.h"   // for clipminmaxi32()
+#include "utils/mk2_utils.h"
+#include "runtime.h"
 #include "unit_revfx.h"
-#include "utils/buffer_ops.h"
+#include "macros.h"
+
 #include "revmodel.hpp"
 #include "tuning.h"
 

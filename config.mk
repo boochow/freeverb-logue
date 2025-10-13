@@ -3,18 +3,17 @@
 #
 
 PROJECT := freeverb
-//PROJECT_TYPE := revfx
-PROJECT_TYPE := delfx
+PROJECT_TYPE := revfx
 
 ##############################################################################
 # Sources
 #
 
 # C sources 
-UCSRC = header.c
+CSRC = header.c
 
 # C++ sources 
-UCXXSRC = allpass.cc comb.cc revmodel.cc freeverb.cc
+CXXSRC = allpass.cc comb.cc revmodel.cc freeverb.cc
 
 # List ASM source files here
 UASMSRC = 
@@ -27,17 +26,30 @@ UASMXSRC =
 
 UINCDIR  = 
 
+ifeq ($(ARCH), arm)
+  UINCDIR += 
+else
+  UINCDIR += 
+endif
+
 ##############################################################################
 # Library Paths
 #
 
 ULIBDIR = 
 
+ifeq ($(ARCH), arm)
+  ULIBDIR += 
+else
+  ULIBDIR += 
+endif
+
 ##############################################################################
 # Libraries
 #
 
 ULIBS  = -lm
+ULIBS += -lc
 
 ##############################################################################
 # Macros
